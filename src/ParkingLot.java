@@ -2,7 +2,7 @@ import java.util.concurrent.Semaphore;
 
 public class ParkingLot {
     private final Semaphore parkingSpots;
-    private int parkedCars = 0;
+    public int parkedCars = 0;
     private int totalCarsServed = 0;
 
     public ParkingLot(int totalSpots) {
