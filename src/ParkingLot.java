@@ -1,3 +1,5 @@
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 public class ParkingLot {
@@ -9,36 +11,33 @@ public class ParkingLot {
         parkingSpots = new Semaphore(totalSpots);
     }
 
-    public synchronized void parkCar(String carInfo) {
+    public synchronized void parkCar(String carInfo, BufferedWriter bw) throws IOException {
         parkedCars++;
         totalCarsServed++;
-        System.out.println(carInfo + " parked. (Parking Status: " + parkedCars + " spots occupied)");
+        bw.write(carInfo + " parked. (Parking Status: " + parkedCars + " spots occupied)\n");
     }
 
-
-    public synchronized void leaveCar(String carInfo, int parkDuration) {
+    public synchronized void leaveCar(String carInfo, int parkDuration, BufferedWriter bw) throws IOException {
         parkedCars--;
-        System.out.println(carInfo + " left after "+ parkDuration+" units of time " + "(Parking Status: " + parkedCars + " spots occupied)");
+        bw.write(carInfo + " left after " + parkDuration + " units of time (Parking Status: " + parkedCars + " spots occupied)\n");
     }
 
-    public void acquireSpot(String carInfo) throws InterruptedException {
-
-        if (parkingSpots.tryAcquire()){
-            parkCar(carInfo);
-        }
-        else {
-            System.out.println(carInfo + " waiting for a spot");
-            while (true){
-                if (parkingSpots.tryAcquire()){
-                    parkCar(carInfo);
+    public void acquireSpot(String carInfo, BufferedWriter bw) throws InterruptedException, IOException {
+        if (parkingSpots.tryAcquire()) {
+            parkCar(carInfo, bw);
+        } else {
+            bw.write(carInfo + " waiting for a spot\n");
+            while (true) {
+                if (parkingSpots.tryAcquire()) {
+                    parkCar(carInfo, bw);
                     break;
                 }
             }
         }
     }
 
-    public void releaseSpot(String carInfo , int parkingDuration) {
-        leaveCar(carInfo, parkingDuration);
+    public void releaseSpot(String carInfo, int parkingDuration, BufferedWriter bw) throws IOException {
+        leaveCar(carInfo, parkingDuration, bw);
         parkingSpots.release();
     }
 
